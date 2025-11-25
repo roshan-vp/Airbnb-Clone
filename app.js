@@ -99,6 +99,6 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render("./listings/error.ejs", { message })
 })
 
-app.listen(5050, () => {
-    console.log("server is listening to port 5050");
+app.listen(process.env.PORT || 8080, () => {
+    console.log("server is listening to port 8080");
 });
