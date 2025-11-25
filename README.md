@@ -82,3 +82,7 @@ Vibnb_Project01/
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to fork the repository and submit a pull request.
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6c662bff94c17086dcf6644fe1e46be91a361de5
