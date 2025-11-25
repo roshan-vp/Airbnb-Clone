@@ -83,6 +83,3 @@ Vibnb_Project01/
 
 Contributions are welcome! Feel free to fork the repository and submit a pull request.
 
-## 📄 License
-
-This project is licensed under the ISC License.
