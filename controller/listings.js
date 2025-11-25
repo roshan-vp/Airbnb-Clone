@@ -12,9 +12,9 @@ module.exports.renderNewForm = (req, res, next) => {
 module.exports.showListing = async (req, res) => {
     let { id } = req.params;
     const listing = await Listing.findById(id)
-    .populate({path : "reviews", populate: "author"})
-    .populate("owner");
-    if(!listing) {
+        .populate({ path: "reviews", populate: "author" })
+        .populate("owner");
+    if (!listing) {
         req.flash("error", "Listing you requested does not exist!");
         return res.redirect("/listings");
     }
@@ -22,12 +22,19 @@ module.exports.showListing = async (req, res) => {
 }
 
 module.exports.createListing = async (req, res, next) => {
+    // Geocoding
+    const mapToken = process.env.MAP_KEY;
+    const response = await fetch(`https://api.maptiler.com/geocoding/${req.body.listing.location}.json?key=${mapToken}&limit=1`);
+    const geoData = await response.json();
+
     let url = req.file.path;
     let filename = req.file.filename;
-    
+
     let newListing = new Listing(req.body.listing);
     newListing.owner = req.user._id;
-    newListing.image = {url, filename};
+    newListing.image = { url, filename };
+    newListing.geometry = geoData.features[0].geometry;
+
     await newListing.save();
     req.flash("success", "New Listings Created!");
     res.redirect("/listings");
@@ -36,7 +43,7 @@ module.exports.createListing = async (req, res, next) => {
 module.exports.renderEditForm = async (req, res) => {
     let { id } = req.params;
     let listing = await Listing.findById(id);
-    if(!listing) {
+    if (!listing) {
         req.flash("error", "Listing does not exist!");
         return res.redirect("/listings");
     }
@@ -48,13 +55,21 @@ module.exports.renderEditForm = async (req, res) => {
 
 module.exports.updateListing = async (req, res) => {
     let { id } = req.params;
+
+    // Geocoding
+    const mapToken = process.env.MAP_KEY;
+    const response = await fetch(`https://api.maptiler.com/geocoding/${req.body.listing.location}.json?key=${mapToken}&limit=1`);
+    const geoData = await response.json();
+
     let updatedData = req.body.listing;
+    updatedData.geometry = geoData.features[0].geometry;
+
     let listing = await Listing.findByIdAndUpdate(id, updatedData);
 
-    if(typeof req.file !== "undefined") {
+    if (typeof req.file !== "undefined") {
         let url = req.file.path;
         let filename = req.file.filename;
-        listing.image = {url, filename};
+        listing.image = { url, filename };
         await listing.save();
     }
 

@@ -1,4 +1,4 @@
-if(process.env.NODE_ENV != "production") {
+if (process.env.NODE_ENV != "production") {
     require('dotenv').config();
 }
 
@@ -31,15 +31,15 @@ const store = MongoStore.create({
 })
 
 const sessionOptions = {
-  store: store,
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-  }
+    store: store,
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+    }
 }
 
 store.on("error", (err) => {
@@ -76,6 +76,7 @@ app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     res.locals.currUser = req.user;
+    res.locals.mapKey = process.env.MAP_KEY;
     next();
 })
 
@@ -84,14 +85,18 @@ app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter)
 
+app.get("/", (req, res) => {
+    res.redirect("/listings");
+});
+
 
 app.all(/.*/, (req, res, next) => {
-    next(new ExpressError(404,"Page Not Found"));
+    next(new ExpressError(404, "Page Not Found"));
 });
 
 app.use((err, req, res, next) => {
     const { statusCode = 500, message = "Something went wrong" } = err;
-    res.status(statusCode).render("./listings/error.ejs", {message})
+    res.status(statusCode).render("./listings/error.ejs", { message })
 })
 
 app.listen(5050, () => {
